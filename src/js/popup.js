@@ -471,7 +471,8 @@ const getCellAction = function(hostname, type, leaning) {
 
 const handleFilter = function(button, leaning) {
     // our parent cell knows who we are
-    const cell = button.ancestors('div.matCell');
+    const cell = (button.classList && button.classList.contains('matCell'))?
+            button : button.ancestors('div.matCell');
     const expandos = expandosFromNode(cell);
     const type = expandos.reqType;
     const desHostname = expandos.hostname;
@@ -1533,6 +1534,143 @@ uDom('#matList').on('click', '.g4Meta', function(ev) {
 });
 
 /******************************************************************************/
+
+let keyMap = {
+    'left':       ['h', 'ArrowLeft'],
+    'right':      ['l', 'ArrowRight'],
+    'up':         ['k', 'ArrowUp'],
+    'down':       ['j', 'ArrowDown'],
+    'select':     [' ', 'Enter'],
+    'reload':     ['r', 'R'], /* hold shift or ctrl to bypass cache */
+    'save':       ['w'],
+    'revert':     ['e'], /* in the style of vi's :e! */
+    'revert-all': ['E'],
+    'on-off':     ['q'],
+    'scope-out':  ['o', '-'],
+    'scope-in':   ['i', '+'],
+};
+
+let selectedCell = null;
+let nodeIterator = null;
+
+function setupKeyboard() {
+    if (getUserSetting('keyboardNavigation')) {
+        document.addEventListener('keydown', handleKeyboardInput);
+        document.addEventListener('click', (event) => {
+            /* remove the border if the user reverts to using the mouse */
+            if (selectedCell) selectedCell.classList.remove('keyboardActive');
+        });
+    }
+}
+
+document.addEventListener('keyup', (event) => {
+    let action = null;
+    for (let key in keyMap) {
+        if (keyMap[key].includes(event.key)) {
+            action = key;
+            if (action == 'select' && event.shiftKey)
+                action = 'select-inverse';
+            break;
+        }
+    }
+
+    switch (action) {
+    case 'up':             moveKeyboardCursor(-9); break;
+    case 'down':           moveKeyboardCursor(+9); break;
+    case 'left':           moveKeyboardCursor(-1); break;
+    case 'right':          moveKeyboardCursor(+1); break;
+    case 'select':         toggleViaKeyboard(selectedCell); break
+    case 'select-inverse': toggleViaKeyboard(selectedCell, true); break;
+    case 'revert':         revertMatrix(); break;
+    case 'revert-all':     revertAll(); break;
+    case 'save':           persistMatrix(); break;
+    case 'scope-out':      keyboardScope(+1); break;
+    case 'scope-in':       keyboardScope(-1); break;
+    case 'reload':
+        vAPI.messaging.send('default', {
+            what: 'forceReloadTab',
+            tabId: matrixSnapshot.tabId,
+            bypassCache: event.ctrlKey || event.shiftKey
+        });
+        break;
+    case 'on-off':
+        vAPI.messaging.send('popup.js', {
+            what: 'toggleMatrixSwitch',
+            switchName: 'matrix-off',
+            srcHostname: matrixSnapshot.scope
+        }, updateMatrixSnapshot);
+        break;
+    }
+
+    event.preventDefault();
+});
+
+function keyboardScope(direction) {
+    let hostname = matrixSnapshot.hostname.split('.');
+    let scope = matrixSnapshot.scope.split('.');
+    let begin = hostname.length - scope.length + direction;
+    if (begin < 0) return; // already at smallest scope
+    let newScope = hostname.slice(begin).join('.');
+    if (newScope == '') newScope = '*'; // global scope
+
+    let ev = new CustomEvent(
+        'uMatrixScopeWidgetChange',
+        {
+            detail: { scope: newScope }
+        }
+    );
+    window.dispatchEvent(ev);
+
+}
+
+function toggleViaKeyboard(node, doReverse = false) {
+    /* Note: normally, toggles colour. If doReverse, enforces current colour */
+    let expandos = expandosFromNode(node);
+    let hue = getTemporaryColor(expandos.hostname, expandos.reqType) & 0x03;
+    let action = (hue === Green ^ doReverse? 'blacklisting' : 'whitelisting');
+    handleFilter(node, action);
+}
+
+function moveKeyboardCursor(n) {
+    let previousCell = selectedCell;
+    if (selectedCell) {
+        selectedCell.classList.remove('keyboardActive');
+        selectedCell = advanceIterator(nodeIterator, n);
+    }
+
+    if(!selectedCell) { // Note: must check again in case we went off the matrix
+	[nodeIterator, selectedCell] = initNodeIterator(previousCell);
+    }
+
+    selectedCell.classList.add('keyboardActive');
+    selectedCell.scrollIntoView({'block': 'center'});
+}
+function advanceIterator(iterator, n) {
+    let operation = (n<0)? ()=>iterator.previousNode() : ()=>iterator.nextNode();
+    let [turns, direction] = [Math.abs(n), Math.sign(n)];
+    let newNode;
+
+    /* When backtracking, NodeIterator once returns the old node */
+    if (iterator.lastDirection != direction) turns++;
+    iterator.lastDirection = direction;
+
+    while (turns-- && (newNode = operation()));
+
+    return newNode;
+}
+
+function initNodeIterator(fastForwardTo = null) {
+    let newNode, iterator = document.createNodeIterator(document.body,
+        NodeFilter.SHOW_ELEMENT, {
+            acceptNode: (node) =>
+                node.classList.contains('matCell') && node.offsetHeight ?
+                    NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
+        }
+    );
+    while ((newNode = iterator.nextNode()) != fastForwardTo && fastForwardTo);
+    iterator.lastDirection = 1;
+    return [iterator, newNode];
+}
 
 // <<<<< end of local scope
 }

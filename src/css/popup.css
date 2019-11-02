@@ -644,3 +644,7 @@ body.hConstrained {
 body[data-touch="true"] .matCell {
     line-height: 200%;
     }
+.keyboardActive {
+    outline: 3px solid black;
+    z-index: 999;
+    }
