@@ -104,6 +104,7 @@ const onInputChanged = function(ev) {
     case 'iconBadgeEnabled':
     case 'noTooltips':
     case 'processHyperlinkAuditing':
+    case 'keyboardNavigation':
         changeUserSettings(target.id, target.checked);
         break;
     case 'noMixedContent':

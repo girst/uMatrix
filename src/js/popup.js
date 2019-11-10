@@ -1370,6 +1370,7 @@ const onMatrixSnapshotReady = function(response) {
     // Now that tabId and pageURL are set, we can build our menu
     initMenuEnvironment();
     makeMenu();
+    setupKeyboard();
 
     // After popup menu is built, check whether there is a non-empty matrix
     if ( matrixSnapshot.url === '' ) {
@@ -1563,7 +1564,7 @@ function setupKeyboard() {
     }
 }
 
-document.addEventListener('keyup', (event) => {
+function handleKeyboardInput(event) {
     let action = null;
     for (let key in keyMap) {
         if (keyMap[key].includes(event.key)) {
@@ -1603,7 +1604,7 @@ document.addEventListener('keyup', (event) => {
     }
 
     event.preventDefault();
-});
+}
 
 function keyboardScope(direction) {
     let hostname = matrixSnapshot.hostname.split('.');

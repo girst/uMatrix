@@ -260,7 +260,8 @@ const matrixSnapshotFromPage = function(pageStore, details) {
             colorBlindFriendly: µmuser.colorBlindFriendly,
             displayTextSize: µmuser.displayTextSize,
             noTooltips: µmuser.noTooltips,
-            popupScopeLevel: µmuser.popupScopeLevel
+            popupScopeLevel: µmuser.popupScopeLevel,
+            keyboardNavigation: µmuser.keyboardNavigation
         }
     };
 

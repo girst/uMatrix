@@ -456,6 +456,14 @@
         "message": "Color-blind friendly",
         "description": ""
     },
+    "settingsMatrixkeyboardNavigation" : {
+        "message": "Keyboard navigation",
+        "description": ""
+    },
+    "settingsMatrixkeyboardNavigationHelp" : {
+        "message": "Navigate between matrix cells using the cursor keys or vi(1) style keybindings.\n\n<b>␣</b>, <b>⏎</b>: toggle cell\n<b>q</b>: disable/enable matrix\n<b>w</b>: save changes\n<b>e</b>: revert changes (⇧: all)\n<b>r</b>: reload page (⇧: no cache)\n<b>–</b>/<b>+</b>: wider/narrower scope",
+        "description": ""
+    },
     "settingsMatrixConvenienceHeader" : {
         "message": "Convenience",
         "description": "English: Convenience"

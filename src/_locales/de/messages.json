@@ -451,6 +451,15 @@
         "message": "Anzeige für farbenblinde Benutzer",
         "description": ""
     },
+    "settingsMatrixkeyboardNavigation" : {
+        "message": "Tastatur-Navigation",
+        "description": ""
+    },
+    "settingsMatrixkeyboardNavigationHelp" : {
+        "message": "Auswählen von Matrixzellen mit den Cursortasten oder vi(1)-ähnlichen Belegungen\n\n<b>␣</b>, <b>⏎</b>: Zelle umschalten\n<b>q</b>: Matrix deaktivieren/aktivieren\n<b>w</b>: Änderungen speichern\n<b>e</b>: Änderungen verwerfen (⇧: global)\n<b>r</b>: Seite neu laden (⇧: ohne Cache)\n<b>–</b>/<b>+</b>: Scope erweitern/verengen",
+
+        "description": ""
+    },
     "settingsMatrixConvenienceHeader": {
         "message": "Komforteinstellungen",
         "description": "English: Convenience"
