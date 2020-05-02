@@ -151,7 +151,7 @@ return {
         externalHostsFiles: [],
         externalRecipeFiles: [],
         iconBadgeEnabled: true,
-        keyboardNavigation: false,
+        keyboardNavigation: true,
         noTooltips: false,
         popupCollapseAllDomains: false,
         popupCollapseBlacklistedDomains: false,
